@@ -1,0 +1,16 @@
+alembic==1.7.5
+Flask==2.0.2
+Flask-Cors==3.0.10
+flask-marshmallow==0.14.0
+Flask-RESTful==0.3.9
+marshmallow==3.14.1
+marshmallow-sqlalchemy==0.26.1
+pipenv==2020.6.2
+pytest==6.2.5
+python-dotenv==0.19.2
+SQLAlchemy==1.4.27
+sqlalchemy-mixins==1.5
+SQLAlchemy-Utils==0.37.9
+tox==3.24.4
+psycopg2-binary==2.9.2
+bcrypt==3.2.0
