@@ -57,6 +57,43 @@ class TestUserCreate:
         assert user.check_password(data["password"])
 
 
+class TestUserActivation:
+
+    def test_activate_user_success(self, db, client, unactive_user, unactive_user_headers):
+
+        assert unactive_user.is_active is False
+
+        data = {
+            "activation_code": unactive_user.activation_code
+        }
+
+        res = client.post("/api/v1/users/activate", json=data, headers=unactive_user_headers)
+        res_json = res.get_json()
+
+        assert res.status_code == 200
+        assert res_json["message"] == 'user activated'
+
+        user = User.get_user(unactive_user.id)
+
+        assert user.is_active
+        assert user.activation_code is None
+        assert user.activation_code_expiration is None
+
+    def test_activate_user_wrong_code_format(self, db, client, unactive_user, unactive_user_headers):
+
+        assert unactive_user.is_active is False
+
+        data = {
+            "activation_code": "ginopaperino"
+        }
+
+        res = client.post("/api/v1/users/activate", json=data, headers=unactive_user_headers)
+        res_json = res.get_json()
+
+        assert res.status_code == 422
+        assert res_json["activation_code"][0] == 'Not a valid integer.'
+
+
 class TestUserGetMe:
 
     def test_get_users_get_me(self, db, client, base_user, base_user_headers):

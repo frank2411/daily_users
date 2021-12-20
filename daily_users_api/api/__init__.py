@@ -8,6 +8,7 @@ from .resources import (
     UserGetMeResource,
     UserChangePasswordResource,
     UserRequestPasswordReset,
+    UserActivationResource,
 )
 
 
@@ -21,6 +22,7 @@ api.add_resource(SwaggerView, '/docs', methods=["GET"])
 # User apis
 # api.add_resource(UserDetailResource, '/users/<int:user_id>')
 api.add_resource(UserListResource, '/users')
+api.add_resource(UserActivationResource, '/users/activate')
 api.add_resource(UserGetMeResource, '/users/me')
 
 # Password apis

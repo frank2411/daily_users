@@ -4,7 +4,8 @@ from .users import (
     # UserDetailResource,
     UserGetMeResource,
     UserChangePasswordResource,
-    UserRequestPasswordReset
+    UserRequestPasswordReset,
+    UserActivationResource
 )
 
 
@@ -15,4 +16,5 @@ __all__ = [
     "UserGetMeResource",
     "UserChangePasswordResource",
     "UserRequestPasswordReset",
+    "UserActivationResource",
 ]

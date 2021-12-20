@@ -7,8 +7,9 @@ from daily_users_api.decorators import check_basicauth_header, authenticate_user
 from daily_users_api.models import User
 
 from daily_users_api.api.schemas import (
-    UserSchema, UserGetMeSchema,
-    ChangePasswordSchema, RequestResetPasswordSchema, ResetPasswordSchema
+    UserSchema, UserGetMeSchema, ChangePasswordSchema,
+    RequestResetPasswordSchema, ResetPasswordSchema,
+    UserCodeValidationSchema
 )
 
 
@@ -77,7 +78,15 @@ class UserActivationResource(Resource):
     method_decorators = [partial_authenticate_user, check_basicauth_header]
 
     def post(self):
-        pass
+        try:
+            schema = UserCodeValidationSchema()
+            validated_data = schema.load(request.json)
+        except ValidationError as err:
+            return err.messages, 422
+
+        User.activate_user(g.current_user, validated_data["activation_code"])
+
+        return {'message': 'user activated'}, 200
 
 
 class UserGetMeResource(Resource):

@@ -9,7 +9,7 @@ from .db import db
 
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.sql.expression import select, true
+from sqlalchemy.sql.expression import select, true, false
 
 from flask import g
 
@@ -51,7 +51,7 @@ class User(db.Model):
 
         user_query = select(User).where(User.email == credentials[0])
 
-        # Use this flag for partial user athentication ( still not validated )
+        # Use this flag for partial user authentication ( still not validated )
         if is_active_check:
             user_query = user_query.where(User.is_active == true())
 
@@ -91,6 +91,24 @@ class User(db.Model):
         user_query = select(User)
         users = db.session.execute(user_query).scalars().all()
         return users
+
+    @staticmethod
+    def activate_user(current_user, code):
+        user_query = select(User).where(
+            User.email == g.current_user.email,
+            User.is_active == false(),
+            User.activation_code == code
+        )
+
+        user = db.session.execute(user_query).scalar_one_or_none()
+
+        if not user:
+            abort(404, message='User not found or already active')
+
+        user.is_active = True
+        user.activation_code = None
+        user.activation_code_expiration = None
+        user.save()
 
     @staticmethod
     def set_password_hash(raw_password):

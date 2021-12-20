@@ -63,6 +63,36 @@ def base_user_headers(base_user_token):
 
 
 @pytest.fixture
+def unactive_user(db):
+    user = User(
+        email="testuser@email.com",
+        password="test",
+        is_active=False,
+    )
+
+    user.generate_activation_code()
+    user.save()
+
+    return user
+
+
+@pytest.fixture
+def unactive_user_token(unactive_user):
+    to_tokenize_string = f"{unactive_user.email}:test".encode("utf-8")
+    return base64.b64encode(to_tokenize_string).decode("utf-8")
+
+
+@pytest.fixture
+def unactive_user_headers(unactive_user_token):
+    headers = {
+        "content-type": "application/json",
+        "authorization": f"Basic {unactive_user_token}",
+    }
+
+    return headers
+
+
+@pytest.fixture
 def reset_password_user(db):
     user = User(
         email="testuser@email.com",

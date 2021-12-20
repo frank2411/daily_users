@@ -89,18 +89,7 @@ class UserGetMeSchema(SQLAlchemyAutoSchema):
 
 
 class UserCodeValidationSchema(SQLAlchemyAutoSchema):
-
-    # role = fields.Method("get_role_value")
-
-    # def get_role_value(self, obj):
-    #     return obj.role.value
-
-    class Meta:
-        model = User
-        sqla_session = db.session
-        include_relationships = True
-        load_instance = True
-        exclude = ("password", "is_active", "activation_code", "activation_code_expiration")
+    activation_code = fields.Integer(required=True)
 
 
 class ChangePasswordSchema(Schema):
