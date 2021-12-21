@@ -1,198 +1,17 @@
 openapi: 3.0.0
 info:
-  title: NES Users API
-  description: NES Users APIs
+  title: Daily Users API
+  description: Daily Users API
   version: '0.1'
 servers:
   - url: https://localhost:5000/api/v1
     description: Local server for testing
 paths:
-  /login:
-    post:
-      tags:
-        - auth
-      summary: Authenticate user.
-      description: Returns access and refresh token if successful.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                password:
-                  type: string
-              required:
-                - email
-                - password
-      responses: 
-        '200':
-          description: Login successful.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  refresh_token:
-                    type: string
-                  access_token_expiration:
-                    type: string
-                    format: date-time
-                  refresh_token_expiration:
-                    type: string
-                    format: date-time
-        '400':
-          description: Error. Bad credentials.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-  /refresh-token:
-    post:
-      tags:
-        - tokens
-      summary: Refresh user token.
-      description: Returns new access token if successful.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-              required:
-                - refresh_token
-      responses: 
-        '200':
-          description: Refresh successful.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  access_token_expiration:
-                    type: string
-                    format: date-time
-        '400':
-          description: Error. Bad request.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: error detail
-        '403':
-          description: Error. Tempering with credentials or token expired.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: error detail
-        '404':
-          description: Error. Token does not exist. User is not active. User doesn't exist anymore.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: error detail
 
-  /revoke-access-token:
-    post:
-      tags:
-        - tokens
-      summary: Revoke user token.
-      description: Revokes access token if successful.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                access_token:
-                  type: string
-              required:
-                - access_token
-      responses: 
-        '200':
-          description: Refresh successful.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '404':
-          description: Error. Token does not exist. User is not active. User doesn't exist anymore.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: error detail
-  /revoke-refresh-token:
-    post:
-      tags:
-        - tokens
-      summary: Revoke user refresh token.
-      description: Revokes refresh token if successful.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-              required:
-                - refresh_token
-      responses: 
-        '200':
-          description: Refresh successful.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '404':
-          description: Error. Token does not exist. User is not active. User doesn't exist anymore.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: error detail
   /users:
     get:
       security:
-        - bearerAuth: []
+        - basicAuth: []
       tags:
         - users
       summary: Returns a list of users.
@@ -211,8 +30,6 @@ paths:
                       description: List of user JSON objects
                       type: object
     post:
-      security:
-        - bearerAuth: []
       tags:
         - users
       summary: Creates a user.
@@ -265,135 +82,11 @@ paths:
                     items:
                       type: string
                       description: Error detail
-  /users/{id}:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - users
-      summary: Returns a user by ID. If it exists.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: User id to get.
-          schema:
-            type : integer
-      responses: 
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      email:
-                        type: string
-                      role:
-                        type: string
-        '404':
-          description: User not foud.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: User not found
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - users
-      summary: Update a users.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: User id to update.
-          schema:
-            type : integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                email:
-                  type: string
-                role:
-                  type: string
-      responses: 
-        '200':
-          description: User updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  user:
-                    description: updated user object
-                    type: object
-        '422':
-          description: List of errors occured in creation.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errorfield:
-                    type: array
-                    items:
-                      type: string
-                      description: Error detail
-    delete:
-      security:
-        - bearerAuth: []
-      tags:
-        - users
-      summary: Delete a user ( Admin restricted ).
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: User id to get.
-          schema:
-            type : integer
-      responses: 
-        '200':
-          description: User deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '404':
-          description: User not foud.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: User not found
+
   /users/change-password:
     post:
       security:
-        - bearerAuth: []
+        - basicAuth: []
       tags:
         - users
       summary: Updates a user password.
@@ -437,12 +130,120 @@ paths:
                     items:
                       type: string
                       description: Error detail
+  
+  /users/reset-password:
+    post:
+      tags:
+        - users
+      summary: Request the Reset of a user password. ( THE MAIL SENDING IS FAKE. It's just for showing :) )
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses: 
+        '200':
+          description: Request sended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Request sended
+        '422':
+          description: List of errors occured in reset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorfield:
+                    type: array
+                    items:
+                      type: string
+                      description: Error detail
+
+  /users/reset-password/{token}:
+    get:
+      tags:
+        - users
+      summary: Validates a user password reset token.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token to reset password.
+          schema:
+            type : string
+      responses: 
+        '200':
+          description: Token is valid. This endpoint just validates a token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Request sended
+        '404':
+          description: Error. User does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: error detail
+
+    patch:
+      tags:
+        - users
+      summary: Resets the user password.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token to reset password.
+          schema:
+            type : string
+      responses: 
+        '200':
+          description: Password reset OK.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Passwod reset ok
+        '404':
+          description: Error. User does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: error detail
+
   /users/me:
     get:
       security:
-        - bearerAuth: []
+        - basicAuth: []
       tags:
-        - users
+        - users get me
       summary: Get me.
       responses: 
         '200':

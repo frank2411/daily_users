@@ -3,12 +3,13 @@ from flask_restful import Api
 
 from .resources import (
     SwaggerView,
-    # UserDetailResource,
+    UserDetailResource,
     UserListResource,
     UserGetMeResource,
     UserChangePasswordResource,
     UserRequestPasswordReset,
     UserActivationResource,
+    UserRequestNewCodeResource,
 )
 
 
@@ -20,9 +21,10 @@ api = Api(api_blueprint)
 api.add_resource(SwaggerView, '/docs', methods=["GET"])
 
 # User apis
-# api.add_resource(UserDetailResource, '/users/<int:user_id>')
+api.add_resource(UserDetailResource, '/users/<int:user_id>')
 api.add_resource(UserListResource, '/users')
 api.add_resource(UserActivationResource, '/users/activate')
+api.add_resource(UserRequestNewCodeResource, '/users/code')
 api.add_resource(UserGetMeResource, '/users/me')
 
 # Password apis

@@ -1,20 +1,22 @@
 from .swagger import SwaggerView
 from .users import (
     UserListResource,
-    # UserDetailResource,
+    UserDetailResource,
     UserGetMeResource,
     UserChangePasswordResource,
     UserRequestPasswordReset,
-    UserActivationResource
+    UserActivationResource,
+    UserRequestNewCodeResource,
 )
 
 
 __all__ = [
     "SwaggerView",
     "UserListResource",
-    # "UserDetailResource",
+    "UserDetailResource",
     "UserGetMeResource",
     "UserChangePasswordResource",
     "UserRequestPasswordReset",
     "UserActivationResource",
+    "UserRequestNewCodeResource",
 ]

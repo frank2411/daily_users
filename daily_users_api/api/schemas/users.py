@@ -1,4 +1,4 @@
-from flask import g, current_app
+from flask import g
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow import fields, Schema, validates_schema
@@ -14,37 +14,8 @@ class UserSchema(SQLAlchemyAutoSchema):
 
     error_messages = {
         "password_not_provided": "Password must not be empty",
-        "role_does_not_exist": "Role does not exist",
-        "role_not_permitted": "To add this role you must have higher permissions.",
-        "customer_not_found": "Customer hasn't been found in the database",
-        "invalid_hall": "One of the halls does not belong to this customer",
         "value_is_empty": "Field cannot be empty",
     }
-
-    # valid_roles = ["superadmin", "admin", "user"]
-
-    def __init__(self, is_creation=False, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_creation = is_creation
-
-        # self.current_user_role = g.current_user.role.value
-
-        if self.instance:
-            self.original_password = self.instance.password
-
-    # role = fields.Method("get_role_value", deserialize="validate_role")
-
-    # def validate_role(self, value):
-    #     if value not in self.valid_roles:
-    #         raise ValidationError(self.error_messages["role_does_not_exist"])
-
-    #     # if value == "superadmin" and self.current_user_role != "superadmin":
-    #     #     raise ValidationError(self.error_messages["role_not_permitted"])
-
-    #     return value
-
-    def get_role_value(self, obj):
-        return obj.role.value
 
     @validates("email")
     def validate_email(self, value):
@@ -54,16 +25,9 @@ class UserSchema(SQLAlchemyAutoSchema):
     def validate_password(self, value):
         base_validate_password(self, value, user=self.instance)
 
-    @post_load
-    def set_new_password(self, instance, **kwargs):
-        if self.partial and instance.password != self.original_password:
-            instance.password = User.set_password_hash(instance.password)
-        return instance
-
     @post_dump
     def exclude_password(self, obj, **kwargs):
-        if self.is_creation:
-            del obj["password"]
+        del obj["password"]
         return obj
 
     class Meta:
@@ -73,12 +37,45 @@ class UserSchema(SQLAlchemyAutoSchema):
         exclude = ("is_active", "activation_code", "activation_code_expiration")
 
 
+class UserUpdateSchema(SQLAlchemyAutoSchema):
+
+    error_messages = {
+        "password_not_provided": "Password must not be empty",
+        "value_is_empty": "Field cannot be empty",
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.original_password = self.instance.password
+
+    @validates("email")
+    def validate_email(self, value):
+        base_validate_empty_string(self, value)
+
+    @validates("password")
+    def validate_password(self, value):
+        base_validate_password(self, value, user=self.instance)
+
+    @post_dump
+    def exclude_password(self, obj, **kwargs):
+        del obj["password"]
+        return obj
+
+    @post_load
+    def set_new_password(self, instance, **kwargs):
+        if self.partial and instance.password != self.original_password:
+            instance.password = User.set_password_hash(instance.password)
+        return instance
+
+    class Meta:
+        model = User
+        sqla_session = db.session
+        load_instance = True
+        exclude = ("activation_code", "activation_code_expiration")
+
+
 class UserGetMeSchema(SQLAlchemyAutoSchema):
-
-    # role = fields.Method("get_role_value")
-
-    # def get_role_value(self, obj):
-    #     return obj.role.value
 
     class Meta:
         model = User

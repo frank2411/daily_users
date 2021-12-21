@@ -3,64 +3,62 @@ from flask_restful import Resource
 from marshmallow import ValidationError
 
 from daily_users_api.decorators import check_basicauth_header, authenticate_user, partial_authenticate_user
-# from daily_users_api.decorators import redirect_if_not_admin
 from daily_users_api.models import User
 
 from daily_users_api.api.schemas import (
     UserSchema, UserGetMeSchema, ChangePasswordSchema,
     RequestResetPasswordSchema, ResetPasswordSchema,
-    UserCodeValidationSchema
+    UserCodeValidationSchema, UserUpdateSchema
 )
 
 
-# class UserDetailResource(Resource):
+class UserDetailResource(Resource):
 
-#     method_decorators = [redirect_if_not_admin, authenticate_user, check_bearer_token]
+    method_decorators = [authenticate_user, check_basicauth_header]
 
-#     auto_update_fields = ['email', 'password', "role", "is_active"]
+    auto_update_fields = ['email', 'password', "is_active"]
 
-#     def get(self, user_id):
-#         schema = UserSchema(exclude=['password'])
-#         user = User.get_user(user_id, g.current_user)
-#         return {'user': schema.dump(user)}
+    def get(self, user_id):
+        schema = UserSchema()
+        user = User.get_user(user_id)
+        return {'user': schema.dump(user)}
 
-#     def patch(self, user_id):
-#         user = User.get_user(user_id, g.current_user)
-#         schema = UserSchema(partial=True, instance=user)
+    def patch(self, user_id):
+        user = User.get_user(user_id)
+        schema = UserUpdateSchema(partial=True, instance=user)
 
-#         # If I'm modifying myself so email and password are excluded
-#         # this way can track this change separately
-#         if user.id == g.current_user.id and user.role.value != "superadmin":
-#             schema = UserSchema(
-#                 partial=True, exclude=self.auto_update_fields, instance=user)
+        # If I'm modifying myself so email and password are excluded
+        # this way can track this change separately
+        if user.id == g.current_user.id:
+            schema = UserUpdateSchema(partial=True, exclude=self.auto_update_fields, instance=user)
 
-#         try:
-#             user = schema.load(request.json)
-#         except ValidationError as err:
-#             return err.messages, 422
+        try:
+            user = schema.load(request.json)
+        except ValidationError as err:
+            return err.messages, 422
 
-#         user.save()
-#         return {'message': 'user updated', 'user': schema.dump(user)}
+        user.save()
+        return {'message': 'user updated', 'user': schema.dump(user)}
 
-#     @redirect_if_not_superadmin
-#     def delete(self, user_id):
-#         user = User.get_user(user_id, g.current_user)
-#         user.delete()
-#         return {'message': 'user deleted'}
+    def delete(self, user_id):
+        user = User.get_user(user_id)
+        user.delete()
+        return {'message': 'user deleted'}
 
 
 class UserListResource(Resource):
     """Creation and get_all"""
 
-    # @redirect_if_not_admin
-    # def get(self):
-    #     schema = UserSchema(many=True, exclude=['password'])
-    #     users = User.get_users(g.current_user)
-    #     return {"users": schema.dump(users)}
+    @authenticate_user
+    @check_basicauth_header
+    def get(self):
+        schema = UserSchema(many=True)
+        users = User.get_users()
+        return {"users": schema.dump(users)}
 
     def post(self):
         try:
-            schema = UserSchema(is_creation=True)
+            schema = UserSchema()
             user = schema.load(request.json)
         except ValidationError as err:
             return err.messages, 422
@@ -87,6 +85,24 @@ class UserActivationResource(Resource):
         User.activate_user(g.current_user, validated_data["activation_code"])
 
         return {'message': 'user activated'}, 200
+
+
+class UserRequestNewCodeResource(Resource):
+
+    method_decorators = [partial_authenticate_user, check_basicauth_header]
+
+    def post(self):
+        user = User.get_user(g.current_user.id)
+
+        if user.is_active:
+            return {"message": "Account has already been activated."}, 400
+
+        user.generate_activation_code()
+        user.save()
+
+        print(f"Generated code: {user.activation_code} and sended via email.")
+
+        return {'message': 'code regenerated'}, 200
 
 
 class UserGetMeResource(Resource):

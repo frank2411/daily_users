@@ -4,7 +4,8 @@ from .users import (
     ChangePasswordSchema,
     ResetPasswordSchema,
     RequestResetPasswordSchema,
-    UserCodeValidationSchema
+    UserCodeValidationSchema,
+    UserUpdateSchema,
 )
 
 
@@ -15,4 +16,5 @@ __all__ = [
     "ResetPasswordSchema",
     "RequestResetPasswordSchema",
     "UserCodeValidationSchema",
+    "UserUpdateSchema",
 ]

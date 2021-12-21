@@ -51,7 +51,7 @@ class User(db.Model):
 
         user_query = select(User).where(User.email == credentials[0])
 
-        # Use this flag for partial user authentication ( still not validated )
+        # Use this flag for partial user authentication ( still not activated )
         if is_active_check:
             user_query = user_query.where(User.is_active == true())
 
@@ -75,10 +75,6 @@ class User(db.Model):
     @staticmethod
     def get_user(user_id):
         user_query = select(User).where(User.id == user_id)
-
-        # if current_user.role.value != "superadmin":
-        #     user_query = user_query.filter(User.role != "superadmin")
-
         user = db.session.execute(user_query).scalar_one_or_none()
 
         if not user:
@@ -87,7 +83,7 @@ class User(db.Model):
         return user
 
     @staticmethod
-    def get_users(current_user):
+    def get_users():
         user_query = select(User)
         users = db.session.execute(user_query).scalars().all()
         return users
@@ -103,7 +99,13 @@ class User(db.Model):
         user = db.session.execute(user_query).scalar_one_or_none()
 
         if not user:
-            abort(404, message='User not found or already active')
+            abort(404, message='User already active or code not valid.')
+
+        # @TODO Check expiration time
+        utc_now = datetime.utcnow()
+
+        if utc_now > user.activation_code_expiration: 
+            abort(400, message='Activation code has expired')
 
         user.is_active = True
         user.activation_code = None

@@ -7,8 +7,8 @@ from daily_users_api.models import User
 from daily_users_api.app import create_app
 from daily_users_api.models import db as rawdb
 
-# from datetime import datetime
-# from datetime import timedelta
+from datetime import datetime
+from datetime import timedelta
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def db(app):
 @pytest.fixture
 def base_user(db):
     user = User(
-        email="testuser@email.com",
+        email="testuserbase@email.com",
         password="test",
         is_active=True,
     )
@@ -60,6 +60,24 @@ def base_user_headers(base_user_token):
     }
 
     return headers
+
+
+@pytest.fixture
+def wrong_len_token(base_user):
+    to_tokenize_string = "testtestest".encode("utf-8")
+    return base64.b64encode(to_tokenize_string).decode("utf-8")
+
+
+@pytest.fixture
+def nonexistent_username_token(base_user):
+    to_tokenize_string = "testtestest:test".encode("utf-8")
+    return base64.b64encode(to_tokenize_string).decode("utf-8")
+
+
+@pytest.fixture
+def invalid_password_token(base_user):
+    to_tokenize_string = f"{base_user.email}:testfail".encode("utf-8")
+    return base64.b64encode(to_tokenize_string).decode("utf-8")
 
 
 @pytest.fixture
@@ -87,6 +105,40 @@ def unactive_user_headers(unactive_user_token):
     headers = {
         "content-type": "application/json",
         "authorization": f"Basic {unactive_user_token}",
+    }
+
+    return headers
+
+
+@pytest.fixture
+def code_expired_user(db):
+    user = User(
+        email="testuser@email.com",
+        password="test",
+        is_active=False,
+    )
+
+    user.generate_activation_code()
+
+    # force activation code to be expired
+    user.activation_code_expiration = datetime.utcnow() - timedelta(days=4)
+
+    user.save()
+
+    return user
+
+
+@pytest.fixture
+def code_expired_user_token(code_expired_user):
+    to_tokenize_string = f"{code_expired_user.email}:test".encode("utf-8")
+    return base64.b64encode(to_tokenize_string).decode("utf-8")
+
+
+@pytest.fixture
+def code_expired_user_headers(code_expired_user_token):
+    headers = {
+        "content-type": "application/json",
+        "authorization": f"Basic {code_expired_user_token}",
     }
 
     return headers

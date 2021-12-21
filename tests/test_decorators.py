@@ -144,22 +144,22 @@ class TestAuthenticateDecorator:
 
         assert ret == "returned"
 
-    # @patch('daily_users_api.decorators.request', spec={})
-    # @patch('daily_users_api.decorators.User.set_current_user')
-    # def test_authenticate_user_aborted(self, token_mock, request_mock, generic_headers):
-    #     headers = {
-    #         "content-type": "application/json",
-    #         "authorization": f"Basic {access_token}",
-    #     }
+    @patch('daily_users_api.decorators.request', spec={})
+    @patch('daily_users_api.decorators.User.set_current_user')
+    def test_authenticate_user_aborted(self, token_mock, request_mock, base_user_headers):
+        headers = {
+            "content-type": "application/json",
+            "authorization": f"Basic {base_user_headers}",
+        }
 
-    #     fn = Mock()
-    #     fn.return_value = "returned"
-    #     request_mock.headers = headers
-    #     token_mock.side_effect = SideEffectException("Something went wrong")
+        fn = Mock()
+        fn.return_value = "returned"
+        request_mock.headers = headers
+        token_mock.side_effect = SideEffectException("Something went wrong")
 
-    #     with pytest.raises(SideEffectException) as httperror:
-    #         dec = authenticate_user(fn)
-    #         dec()
+        with pytest.raises(SideEffectException) as httperror:
+            dec = authenticate_user(fn)
+            dec()
 
-    #     assert httperror.value
-    #     assert httperror.value.message == "Something went wrong"
+        assert httperror.value
+        assert httperror.value.message == "Something went wrong"
