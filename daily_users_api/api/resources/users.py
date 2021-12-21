@@ -49,8 +49,8 @@ class UserDetailResource(Resource):
 class UserListResource(Resource):
     """Creation and get_all"""
 
-    @authenticate_user
     @check_basicauth_header
+    @authenticate_user
     def get(self):
         schema = UserSchema(many=True)
         users = User.get_users()
@@ -102,7 +102,7 @@ class UserRequestNewCodeResource(Resource):
 
         print(f"Generated code: {user.activation_code} and sended via email.")
 
-        return {'message': 'code regenerated'}, 200
+        return {'message': 'code regenerated', 'code': user.activation_code}, 200
 
 
 class UserGetMeResource(Resource):

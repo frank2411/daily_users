@@ -1,7 +1,7 @@
 import base64
 import binascii
 
-from flask import request, g
+from flask import request
 from flask_restful import abort
 
 from functools import wraps

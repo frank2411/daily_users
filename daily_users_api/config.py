@@ -49,12 +49,12 @@ class LocalConfig(BaseConfig):
     DEBUG = True
     TESTING = False
 
-    DAILY_USERS_DB_ENGINE = os.getenv("DAILY_USERS_DB_ENGINE")
-    DAILY_USERS_DB_USER = os.getenv("DAILY_USERS_DB_USER")
-    DAILY_USERS_DB_PASSWORD = os.getenv("DAILY_USERS_DB_PASSWORD")
-    DAILY_USERS_DB_HOST = os.getenv("DAILY_USERS_DB_HOST")
-    DAILY_USERS_DB_PORT = os.getenv("DAILY_USERS_DB_PORT")
-    DAILY_USERS_DB_NAME = os.getenv("DAILY_USERS_DB_NAME")
+    DAILY_USERS_DB_ENGINE = os.getenv("DAILY_USERS_DB_ENGINE", "postgresql")
+    DAILY_USERS_DB_USER = os.getenv("DAILY_USERS_DB_USER", "postgres")
+    DAILY_USERS_DB_PASSWORD = os.getenv("DAILY_USERS_DB_PASSWORD", "admin")
+    DAILY_USERS_DB_HOST = os.getenv("DAILY_USERS_DB_HOST", "db")
+    DAILY_USERS_DB_PORT = os.getenv("DAILY_USERS_DB_PORT", "5432")
+    DAILY_USERS_DB_NAME = os.getenv("DAILY_USERS_DB_NAME", "daily_users")
 
     SQLALCHEMY_DATABASE_URI = (
         f'{DAILY_USERS_DB_ENGINE}://{DAILY_USERS_DB_USER}:'

@@ -104,7 +104,7 @@ class User(db.Model):
         # @TODO Check expiration time
         utc_now = datetime.utcnow()
 
-        if utc_now > user.activation_code_expiration: 
+        if utc_now > user.activation_code_expiration:
             abort(400, message='Activation code has expired')
 
         user.is_active = True

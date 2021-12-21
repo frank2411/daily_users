@@ -34,7 +34,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         sqla_session = db.session
         load_instance = True
-        exclude = ("is_active", "activation_code", "activation_code_expiration")
+        exclude = ("is_active", "activation_code_expiration")
 
 
 class UserUpdateSchema(SQLAlchemyAutoSchema):

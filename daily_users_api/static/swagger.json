@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://localhost:5000/api/v1",
+      "url": "http://localhost:5000/api/v1",
       "description": "Local server for testing"
     }
   ],
@@ -61,16 +61,12 @@
                   "email": {
                     "type": "string"
                   },
-                  "role": {
-                    "type": "string"
-                  },
                   "password": {
                     "type": "string"
                   }
                 },
                 "required": [
                   "email",
-                  "role",
                   "password"
                 ]
               }
@@ -97,9 +93,6 @@
                         },
                         "email": {
                           "type": "string"
-                        },
-                        "role": {
-                          "type": "string"
                         }
                       }
                     }
@@ -121,6 +114,325 @@
                         "type": "string",
                         "description": "Error detail"
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/activate": {
+      "post": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "tags": [
+          "user activation"
+        ],
+        "summary": "Activate a user with given code.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activation_code": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "activation_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Activated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "user activated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "List of errors occured in activation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorfield": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "Error detail"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/code": {
+      "post": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "tags": [
+          "user activation"
+        ],
+        "summary": "Regenerate code for logged-in ( not activated ) user.",
+        "responses": {
+          "200": {
+            "description": "Code regenerated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "code regenerated"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "description": "code"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, user already active.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Account has already been activated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "Returns a user by ID. If it exists.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User id to get.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not foud.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "User not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "Update a users.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User id to update.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "description": "updated user object",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "List of errors occured in creation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errorfield": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "Error detail"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "Delete a user.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User id to get.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not foud.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "User not found"
                     }
                   }
                 }
@@ -397,16 +709,6 @@
                     },
                     "email": {
                       "type": "string"
-                    },
-                    "role": {
-                      "type": "string"
-                    },
-                    "halls": {
-                      "type": "array",
-                      "items": {
-                        "description": "List of hall uuid",
-                        "type": "string"
-                      }
                     }
                   }
                 }
