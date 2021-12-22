@@ -15,10 +15,11 @@ services:
     image: postgres:13-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      # - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=daily_users
+      # - POSTGRES_DB=daily_users
 
 volumes:
   postgres_data:
